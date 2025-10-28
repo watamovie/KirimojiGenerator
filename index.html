@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG 切り文字 STL ジェネレーター</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>SVG から STL へ変換</h1>
+    <section class="panel">
+      <label class="field">
+        <span>SVG ファイルを選択</span>
+        <input type="file" id="svgFile" accept="image/svg+xml" />
+      </label>
+      <div class="field">
+        <label for="thickness">厚み (mm)</label>
+        <input type="number" id="thickness" value="3" min="0.1" step="0.1" />
+      </div>
+      <div class="field">
+        <label for="targetSize">最大サイズ (mm) <span class="note">※未入力の場合は元のサイズを使用します</span></label>
+        <input type="number" id="targetSize" min="0" step="0.1" placeholder="例: 50" />
+      </div>
+      <label class="field checkbox">
+        <input type="checkbox" id="removeStrokes" />
+        <span>ストロークをすべて削除</span>
+      </label>
+      <label class="field checkbox">
+        <input type="checkbox" id="removeColorToggle" />
+        <span>指定した塗り色の図形を削除</span>
+      </label>
+      <div class="field color-field" id="colorOptions" hidden>
+        <label for="colorToRemove">削除する色</label>
+        <input type="color" id="colorToRemove" value="#000000" />
+      </div>
+      <button id="convertBtn" class="primary">STL を生成</button>
+      <p id="status" class="status"></p>
+    </section>
+  </main>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
