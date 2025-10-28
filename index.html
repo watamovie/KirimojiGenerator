@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kirimoji STL Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Kirimoji STL Generator</h1>
+        <p>
+          SVGファイルを読み込み、厚みを指定した立体の切り文字STLを生成します。Cloudflare Pagesなどの静的サイトで動作します。
+        </p>
+      </header>
+
+      <section class="card">
+        <h2>SVG設定</h2>
+        <form id="options-form">
+          <div class="field">
+            <label for="svg-upload">SVGファイル</label>
+            <input id="svg-upload" type="file" accept="image/svg+xml" required />
+          </div>
+
+          <div class="field">
+            <label for="thickness">厚み (mm)</label>
+            <input
+              id="thickness"
+              name="thickness"
+              type="number"
+              min="0.1"
+              step="0.1"
+              value="3"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="target-size">仕上がりサイズ (最大幅/高さ, mm)</label>
+            <input
+              id="target-size"
+              name="target-size"
+              type="number"
+              min="0.1"
+              step="0.1"
+              placeholder="例: 80"
+            />
+            <p class="note">
+              指定しない場合、SVGのサイズをそのまま使用します。指定した場合は、幅または高さの大きい方がこの値になるように拡大・縮小します。
+            </p>
+          </div>
+
+          <div class="field checkbox">
+            <input type="checkbox" id="remove-strokes" name="remove-strokes" />
+            <label for="remove-strokes">全てのストロークを削除</label>
+          </div>
+
+          <div class="field">
+            <label for="remove-fill-colors">削除する塗り色 (カンマ区切り)</label>
+            <input
+              id="remove-fill-colors"
+              name="remove-fill-colors"
+              type="text"
+              placeholder="#ff0000, rgb(0,0,0) など"
+            />
+            <p class="note">指定した色で塗られている図形は除去されます。</p>
+          </div>
+
+          <button type="submit" class="action">STLを生成</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>ログ</h2>
+        <div id="log" class="log" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <template id="log-entry-template">
+      <div class="log-entry"></div>
+    </template>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
