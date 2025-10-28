@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirimoji Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Kirimoji Generator</h1>
+      <p class="description">
+        SVGをアップロードして厚みを指定すると、切り文字用のSTLを生成します。
+      </p>
+    </header>
+    <section class="panel">
+      <div class="field">
+        <label for="svg-file">SVGファイル</label>
+        <input id="svg-file" type="file" accept=".svg" />
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label for="thickness">厚み (mm)</label>
+          <input id="thickness" type="number" min="0.1" step="0.1" value="3" />
+        </div>
+        <div class="field">
+          <label for="target-size">全体サイズ (mm)</label>
+          <input id="target-size" type="number" min="0" step="1" placeholder="元のサイズ" />
+          <small id="size-hint" class="hint"></small>
+        </div>
+      </div>
+      <div class="field checkbox-field">
+        <input id="remove-strokes" type="checkbox" />
+        <label for="remove-strokes">ストロークを削除</label>
+      </div>
+      <div class="field checkbox-field">
+        <input id="remove-color-toggle" type="checkbox" />
+        <label for="remove-color-toggle">特定の塗り色の図形を削除</label>
+      </div>
+      <div id="color-controls" class="field color-controls" hidden>
+        <label for="remove-color">削除する色</label>
+        <input id="remove-color" type="color" value="#ffffff" />
+      </div>
+      <button id="convert-button" type="button" disabled>STLを生成</button>
+    </section>
+    <section class="panel">
+      <h2>ステータス</h2>
+      <pre id="status" class="status" aria-live="polite"></pre>
+    </section>
+  </main>
+  <footer class="footer">
+    <small>参考: <a href="https://svg-resizeer.pages.dev" target="_blank" rel="noopener">svg-resizeer</a></small>
+  </footer>
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
