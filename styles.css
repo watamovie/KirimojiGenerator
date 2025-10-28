@@ -1,0 +1,153 @@
+:root {
+  color-scheme: light;
+  font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #f7f7f7;
+  color: #2c2c2c;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header,
+footer {
+  background: #ffffff;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.8rem;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem 3rem;
+}
+
+.panel {
+  background: #ffffff;
+  width: min(600px, 100%);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
+}
+
+form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field.inline {
+  flex-direction: row;
+  align-items: center;
+}
+
+.field.inline input[type="color"] {
+  width: 48px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.field.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+label,
+legend {
+  font-weight: 600;
+}
+
+input[type="file"],
+input[type="number"],
+input[type="color"],
+button {
+  font: inherit;
+}
+
+input[type="file"],
+input[type="number"] {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+input[type="file"] {
+  background-color: #fafafa;
+}
+
+input:disabled {
+  opacity: 0.6;
+}
+
+button {
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+#status {
+  min-height: 1.2rem;
+  margin-top: 1rem;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  header,
+  footer {
+    text-align: center;
+  }
+
+  .panel {
+    padding: 1.5rem;
+  }
+}

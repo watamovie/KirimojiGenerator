@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirimoji STL Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Kirimoji STL Generator</h1>
+    <p>SVGファイルから切り文字用のSTLファイルを生成します。</p>
+  </header>
+  <main>
+    <section class="panel">
+      <form id="generator-form">
+        <div class="field">
+          <label for="svg-file">SVGファイル</label>
+          <input id="svg-file" type="file" accept="image/svg+xml" required />
+        </div>
+        <div class="field">
+          <label for="thickness">厚み (mm)</label>
+          <input id="thickness" type="number" min="0.1" step="0.1" value="3" required />
+        </div>
+        <div class="field">
+          <label for="target-width">仕上がり幅 (mm)</label>
+          <input id="target-width" type="number" min="1" step="1" placeholder="そのままの場合は空欄" />
+        </div>
+        <div class="field checkbox">
+          <input id="remove-strokes" type="checkbox" />
+          <label for="remove-strokes">SVG内のストロークを全て削除</label>
+        </div>
+        <fieldset class="field">
+          <legend>指定色で塗られた図形を削除</legend>
+          <div class="field checkbox inline">
+            <input id="enable-color-filter" type="checkbox" />
+            <label for="enable-color-filter">色を指定する</label>
+          </div>
+          <div class="field inline">
+            <label for="filter-color" class="sr-only">削除する色</label>
+            <input id="filter-color" type="color" value="#ffffff" disabled />
+            <span class="hint">（SVGのfill属性に完全一致する色が対象です）</span>
+          </div>
+        </fieldset>
+        <button type="submit">STLを生成してダウンロード</button>
+      </form>
+      <p id="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer>
+    <small>すべてブラウザ内で処理されます。SVGの構造によっては正しく変換できない場合があります。</small>
+  </footer>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
