@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kirimoji STL Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Kirimoji STL Generator</h1>
+      <p>SVGを加工して立体の切り文字データ(STL)を生成します。</p>
+    </header>
+    <main>
+      <section class="controls">
+        <div class="control-group">
+          <label for="svgFile">SVGファイルを選択:</label>
+          <input type="file" id="svgFile" accept="image/svg+xml" />
+        </div>
+        <div class="control-group">
+          <label for="thickness">厚み (mm):</label>
+          <input type="number" id="thickness" value="3" min="0.1" step="0.1" />
+        </div>
+        <div class="control-group">
+          <label>仕上がりサイズ (mm):</label>
+          <div class="size-inputs">
+            <label>
+              幅
+              <input type="number" id="targetWidth" min="0" step="1" placeholder="自動" />
+            </label>
+            <label>
+              高さ
+              <input type="number" id="targetHeight" min="0" step="1" placeholder="自動" />
+            </label>
+          </div>
+          <p class="hint">※どちらか一方または両方を指定できます。未指定の場合は原寸になります。</p>
+        </div>
+        <div class="control-group option">
+          <label>
+            <input type="checkbox" id="removeStrokes" /> すべてのストロークを削除
+          </label>
+        </div>
+        <div class="control-group">
+          <h2>色で塗りつぶされた図形を削除</h2>
+          <p class="hint">削除したい塗り色を選んでください。</p>
+          <div id="colorOptions" class="color-options empty">
+            <p>SVGの読み込み後に色が表示されます。</p>
+          </div>
+        </div>
+        <div class="control-group buttons">
+          <button id="generateButton" disabled>モデルを生成</button>
+          <a id="downloadLink" class="download" download="kirimoji.stl">STLをダウンロード</a>
+        </div>
+      </section>
+      <section class="preview">
+        <h2>プレビュー</h2>
+        <div id="rendererContainer"></div>
+        <p id="statusMessage" class="status"></p>
+      </section>
+    </main>
+    <footer>
+      <p>SVGを加工した上でThree.jsを用いてSTLファイルを生成しています。</p>
+    </footer>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
