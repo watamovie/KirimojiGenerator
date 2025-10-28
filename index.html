@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirimoji Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Kirimoji Generator</h1>
+    <p>SVGから立体の切り文字を生成し、STLでダウンロードできます。</p>
+  </header>
+  <main>
+    <section class="controls">
+      <div class="input-group">
+        <label for="svgFile">SVGファイルをアップロード</label>
+        <input type="file" id="svgFile" accept=".svg" />
+      </div>
+      <div class="input-group">
+        <label for="thickness">厚み (mm)</label>
+        <input type="number" id="thickness" min="0.1" step="0.1" value="3" />
+      </div>
+      <div class="input-group">
+        <label for="targetWidth">仕上がり幅 (mm)</label>
+        <input type="number" id="targetWidth" min="0.1" step="0.1" placeholder="自動" />
+      </div>
+      <div class="input-group">
+        <label for="targetHeight">仕上がり高さ (mm)</label>
+        <input type="number" id="targetHeight" min="0.1" step="0.1" placeholder="自動" />
+      </div>
+      <div class="input-group checkbox">
+        <input type="checkbox" id="removeStrokes" />
+        <label for="removeStrokes">SVGのストロークを削除する</label>
+      </div>
+      <div class="input-group">
+        <h2>削除する塗り色</h2>
+        <p class="note">対象の色を選択すると、その色で塗られている図形が削除されます。</p>
+        <div id="colorOptions" class="color-options"></div>
+      </div>
+      <div class="actions">
+        <button id="updatePreview" disabled>プレビュー更新</button>
+        <button id="downloadStl" disabled>STLをダウンロード</button>
+      </div>
+      <div id="status" role="status"></div>
+    </section>
+    <section class="preview" aria-label="3Dプレビュー">
+      <div id="rendererContainer"></div>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
