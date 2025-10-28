@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirimoji STL Generator</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+      max-width: 960px;
+      background: #f8f9fb;
+      color: #1a1a1a;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 700;
+    }
+
+    section {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    input[type="file"],
+    input[type="number"],
+    input[type="text"],
+    button {
+      font: inherit;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5f5;
+      background: #fff;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(120deg, #2c5be3, #6246ea);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      box-shadow: 0 12px 24px rgba(44, 91, 227, 0.25);
+    }
+
+    button:hover,
+    button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(44, 91, 227, 0.3);
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      margin-top: 1.5rem;
+      align-items: center;
+    }
+
+    .options label {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 500;
+    }
+
+    #log {
+      background: rgba(15, 23, 42, 0.75);
+      color: #f8fafc;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    #downloadLink {
+      display: none;
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    #downloadLink a {
+      display: inline-flex;
+      gap: 0.6rem;
+      align-items: center;
+      padding: 0.85rem 1.6rem;
+      border-radius: 999px;
+      text-decoration: none;
+      background: linear-gradient(120deg, #059669, #10b981);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 14px 26px rgba(16, 185, 129, 0.25);
+    }
+
+    .note {
+      color: #475569;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem 1rem 2rem;
+      }
+
+      section {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Kirimoji STL Generator</h1>
+  <section>
+    <div class="controls">
+      <label>
+        SVGファイル
+        <input id="svgInput" type="file" accept="image/svg+xml" />
+      </label>
+      <label>
+        厚み (mm)
+        <input id="thicknessInput" type="number" value="3" min="0.1" step="0.1" />
+      </label>
+      <label>
+        全体サイズ (mm)
+        <input id="sizeInput" type="number" min="0" step="0.1" placeholder="例: 100" />
+        <span class="note">最長辺が指定値になるよう縮尺します。空欄の場合は原寸を使用します。</span>
+      </label>
+      <label>
+        塗りつぶし色で削除
+        <input id="colorInput" type="text" placeholder="#ff0000 または red" />
+        <span class="note">該当色で塗られた図形を削除します（空欄で無効）。</span>
+      </label>
+    </div>
+    <div class="options">
+      <label><input id="removeStrokes" type="checkbox" /> SVGのストローク属性を削除</label>
+    </div>
+    <div style="margin-top: 2rem; text-align: center;">
+      <button id="generateButton">STLを生成</button>
+    </div>
+    <div id="downloadLink"></div>
+  </section>
+  <section>
+    <h2>処理ログ</h2>
+    <div id="log">SVGファイルを選択し、パラメータを調整してから「STLを生成」をクリックしてください。</div>
+  </section>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.159.0/build/three.module.js';
+    import { SVGLoader } from 'https://unpkg.com/three@0.159.0/examples/jsm/loaders/SVGLoader.js';
+    import { STLExporter } from 'https://unpkg.com/three@0.159.0/examples/jsm/exporters/STLExporter.js';
+    import { BufferGeometryUtils } from 'https://unpkg.com/three@0.159.0/examples/jsm/utils/BufferGeometryUtils.js';
+
+    const svgInput = document.getElementById('svgInput');
+    const thicknessInput = document.getElementById('thicknessInput');
+    const sizeInput = document.getElementById('sizeInput');
+    const colorInput = document.getElementById('colorInput');
+    const removeStrokes = document.getElementById('removeStrokes');
+    const generateButton = document.getElementById('generateButton');
+    const logElement = document.getElementById('log');
+    const downloadLink = document.getElementById('downloadLink');
+
+    const appendLog = (message) => {
+      const now = new Date().toLocaleTimeString();
+      const entry = `[${now}] ${message}`;
+      if (logElement.textContent) {
+        logElement.textContent += `\n${entry}`;
+      } else {
+        logElement.textContent = entry;
+      }
+      logElement.scrollTop = logElement.scrollHeight;
+    };
+
+    const normaliseColor = (value) => {
+      if (!value) return null;
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+
+      // Try to parse CSS color
+      const colorElement = document.createElement('span');
+      colorElement.style.color = trimmed;
+      if (!colorElement.style.color) {
+        appendLog(`警告: 色 "${trimmed}" を解釈できませんでした。`);
+        return null;
+      }
+
+      document.body.appendChild(colorElement);
+      const computedColor = getComputedStyle(colorElement).color;
+      document.body.removeChild(colorElement);
+
+      // Convert to lowercase rgb string for comparison
+      return computedColor.toLowerCase();
+    };
+
+    const filterSvg = (svgText, options) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, 'image/svg+xml');
+      const svg = doc.documentElement;
+
+      if (!svg || svg.nodeName !== 'svg') {
+        throw new Error('アップロードされたファイルはSVGではないようです。');
+      }
+
+      if (options.removeStrokes) {
+        const strokedElements = svg.querySelectorAll('[stroke]');
+        strokedElements.forEach((el) => el.removeAttribute('stroke'));
+        appendLog(`${strokedElements.length}件のストローク属性を削除しました。`);
+      }
+
+      if (options.removalColor) {
+        const matchingElements = [];
+        const walker = doc.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+        while (walker.nextNode()) {
+          const el = walker.currentNode;
+          const fillValue = el.getAttribute && el.getAttribute('fill');
+          if (!fillValue) continue;
+
+          const colorElement = document.createElement('span');
+          colorElement.style.color = fillValue;
+          if (!colorElement.style.color) continue;
+          document.body.appendChild(colorElement);
+          const resolved = getComputedStyle(colorElement).color.toLowerCase();
+          document.body.removeChild(colorElement);
+
+          if (resolved === options.removalColor) {
+            matchingElements.push(el);
+          }
+        }
+        matchingElements.forEach((el) => el.remove());
+        appendLog(`${matchingElements.length}件の要素を指定色により削除しました。`);
+      }
+
+      return new XMLSerializer().serializeToString(svg);
+    };
+
+    const generateStl = async () => {
+      downloadLink.style.display = 'none';
+      downloadLink.innerHTML = '';
+
+      const file = svgInput.files?.[0];
+      if (!file) {
+        appendLog('エラー: SVGファイルを選択してください。');
+        return;
+      }
+
+      const thickness = Number(thicknessInput.value);
+      if (!Number.isFinite(thickness) || thickness <= 0) {
+        appendLog('エラー: 厚みには0より大きい数値を入力してください。');
+        return;
+      }
+
+      const sizeValue = Number(sizeInput.value);
+      const targetSize = Number.isFinite(sizeValue) && sizeValue > 0 ? sizeValue : null;
+
+      const removalColor = normaliseColor(colorInput.value);
+
+      try {
+        const svgText = await file.text();
+        appendLog(`${file.name} (${(file.size / 1024).toFixed(1)}KB) を読み込みました。`);
+
+        const filteredSvgText = filterSvg(svgText, {
+          removeStrokes: removeStrokes.checked,
+          removalColor,
+        });
+
+        const loader = new SVGLoader();
+        const svgData = loader.parse(filteredSvgText);
+        if (!svgData.paths.length) {
+          appendLog('エラー: SVG内にパスが見つかりませんでした。');
+          return;
+        }
+
+        const extrudeSettings = { depth: 1, bevelEnabled: false };
+        const geometries = [];
+
+        svgData.paths.forEach((path) => {
+          const shapes = SVGLoader.createShapes(path);
+          shapes.forEach((shape) => {
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            geometry.rotateX(Math.PI);
+            geometry.translate(0, 0, extrudeSettings.depth);
+            geometries.push(geometry);
+          });
+        });
+
+        if (!geometries.length) {
+          appendLog('エラー: STL生成に利用できる図形がありません。');
+          return;
+        }
+
+        let mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries, true);
+        mergedGeometry.computeBoundingBox();
+        const bbox = mergedGeometry.boundingBox;
+        const size = new THREE.Vector3();
+        bbox.getSize(size);
+        const center = new THREE.Vector3();
+        bbox.getCenter(center);
+
+        mergedGeometry.translate(-center.x, -center.y, -bbox.min.z);
+
+        const currentSize = new THREE.Vector3();
+        mergedGeometry.computeBoundingBox();
+        mergedGeometry.boundingBox.getSize(currentSize);
+
+        const currentMaxXY = Math.max(currentSize.x, currentSize.y);
+        const scaleXY = targetSize && currentMaxXY > 0 ? targetSize / currentMaxXY : 1;
+        const scaleZ = thickness / currentSize.z;
+        mergedGeometry.scale(scaleXY, scaleXY, scaleZ);
+
+        mergedGeometry.computeBoundingBox();
+        const postScaleBox = mergedGeometry.boundingBox;
+        mergedGeometry.translate(-postScaleBox.min.x, -postScaleBox.min.y, -postScaleBox.min.z);
+
+        const mesh = new THREE.Mesh(mergedGeometry, new THREE.MeshNormalMaterial());
+        const exporter = new STLExporter();
+        const stlString = exporter.parse(mesh, { binary: false });
+        const blob = new Blob([stlString], { type: 'model/stl' });
+        const objectUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        const baseName = file.name.replace(/\.svg$/i, '');
+        link.href = objectUrl;
+        link.download = `${baseName || 'kirimoji'}_${thickness.toFixed(2).replace(/\.?0+$/, '')}mm.stl`;
+        link.textContent = 'STLをダウンロード';
+
+        downloadLink.innerHTML = '';
+        downloadLink.appendChild(link);
+        downloadLink.style.display = 'block';
+
+        appendLog(`STLを生成しました。出力サイズ: ${(currentSize.x * scaleXY).toFixed(2)}mm × ${(currentSize.y * scaleXY).toFixed(2)}mm × ${thickness.toFixed(2)}mm`);
+      } catch (error) {
+        console.error(error);
+        appendLog(`エラー: ${error.message || error}`);
+      }
+    };
+
+    generateButton.addEventListener('click', () => {
+      logElement.textContent = '';
+      appendLog('処理を開始します…');
+      generateStl();
+    });
+  </script>
+</body>
+</html>
