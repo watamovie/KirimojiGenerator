@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kirimoji STL Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Kirimoji STL Generator</h1>
+      <p>SVGから立体の切り文字用STLファイルを生成します。</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>SVG設定</h2>
+        <form id="options-form">
+          <div class="field">
+            <label for="svg-file">SVGファイル</label>
+            <input type="file" id="svg-file" accept="image/svg+xml" required />
+          </div>
+
+          <div class="field">
+            <label for="thickness">厚み (mm)</label>
+            <input type="number" id="thickness" min="0.1" step="0.1" value="3" />
+          </div>
+
+          <div class="field">
+            <label for="target-size">最大寸法 (mm)</label>
+            <input
+              type="number"
+              id="target-size"
+              min="1"
+              step="1"
+              value="50"
+              title="STL化する際のX/Y方向の最大寸法です"
+            />
+          </div>
+
+          <div class="field checkbox-field">
+            <input type="checkbox" id="remove-strokes" />
+            <label for="remove-strokes">全てのストロークを削除</label>
+          </div>
+
+          <div class="field">
+            <label for="remove-fill-color">削除する塗りの色</label>
+            <div class="color-input">
+              <input type="color" id="remove-fill-color" value="#ffffff" />
+              <span class="hint">該当する塗りを持つ図形を削除します</span>
+            </div>
+            <div class="field checkbox-field">
+              <input type="checkbox" id="enable-fill-removal" />
+              <label for="enable-fill-removal">この色の塗りを持つ図形を削除</label>
+            </div>
+          </div>
+
+          <button type="submit" class="primary">STLを生成</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>出力</h2>
+        <div id="status" role="status">SVGファイルを選択してください。</div>
+        <a id="download-link" class="hidden" download="kirimoji.stl">STLをダウンロード</a>
+      </section>
+    </main>
+
+    <footer>
+      <small>SVG処理の一部は <a href="https://svg-resizeer.pages.dev" target="_blank" rel="noreferrer">SVG Resizeer</a> を参考にしています。</small>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
