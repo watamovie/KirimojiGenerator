@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kirimoji STL Generator</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Segoe UI", "Hiragino Sans", system-ui, sans-serif;
+        background: #f4f4f5;
+        color: #1f2933;
+      }
+
+      body {
+        margin: 0;
+        padding: 2rem;
+        display: grid;
+        place-items: center;
+      }
+
+      main {
+        width: min(960px, 100%);
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        padding: 2.5rem;
+      }
+
+      h1 {
+        margin-top: 0;
+        font-size: 1.8rem;
+        letter-spacing: 0.02em;
+      }
+
+      fieldset {
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .panel {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+      }
+
+      input[type="file"] {
+        display: block;
+        width: 100%;
+      }
+
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease;
+        background: white;
+      }
+
+      input[type="number"]:focus,
+      select:focus {
+        border-color: #2563eb;
+        outline: none;
+      }
+
+      .checkbox-list {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .checkbox-item span {
+        min-width: 56px;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        padding: 0.2rem 0.75rem;
+        display: inline-flex;
+        justify-content: center;
+      }
+
+      button {
+        background: linear-gradient(120deg, #1d4ed8, #4338ca);
+        color: white;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.9rem 1.4rem;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        width: fit-content;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      button:not(:disabled):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.2);
+      }
+
+      .actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .output {
+        padding: 1rem 1.25rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.95rem;
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .color-preview {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid rgba(15, 23, 42, 0.2);
+      }
+
+      .notice {
+        font-size: 0.9rem;
+        color: #475569;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 1rem;
+        }
+
+        main {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Kirimoji STL Generator</h1>
+      <p class="notice">
+        SVGファイルをアップロードし、厚みとサイズを指定してSTLファイルを生成します。
+      </p>
+      <fieldset class="panel">
+        <div>
+          <label for="svgInput">SVGファイル</label>
+          <input id="svgInput" type="file" accept=".svg" />
+        </div>
+        <div>
+          <label for="thicknessInput">厚み (mm)</label>
+          <input id="thicknessInput" type="number" min="0.1" step="0.1" value="3" />
+        </div>
+        <div>
+          <label for="targetSizeInput">全体サイズ (mm)</label>
+          <input
+            id="targetSizeInput"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="SVGの最大幅を基準にmm換算で指定"
+          />
+        </div>
+        <div>
+          <label>
+            <input id="removeStrokeInput" type="checkbox" />
+            SVG内のストロークを削除
+          </label>
+        </div>
+        <div>
+          <p style="margin: 0 0 0.35rem; font-weight: 600">削除する塗り色</p>
+          <div id="colorList" class="checkbox-list"></div>
+          <p class="notice">
+            SVGを読み込むと使用されている色が表示されます。削除したい塗り色を選択してください。
+          </p>
+        </div>
+        <div class="actions">
+          <button id="generateBtn" disabled>STLを生成</button>
+          <div id="status" class="notice"></div>
+        </div>
+        <div id="output" class="output" hidden>
+          <div><strong>ファイル名:</strong> <span id="outputFilename"></span></div>
+          <div><strong>頂点数:</strong> <span id="outputVertices"></span></div>
+          <div><strong>面数:</strong> <span id="outputFaces"></span></div>
+          <a id="downloadLink" download="kirimoji.stl">STLをダウンロード</a>
+        </div>
+      </fieldset>
+    </main>
+
+    <script type="module">
+      import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
+      import { SVGLoader } from "https://unpkg.com/three@0.158.0/examples/jsm/loaders/SVGLoader.js";
+      import { STLExporter } from "https://unpkg.com/three@0.158.0/examples/jsm/exporters/STLExporter.js";
+
+      const svgInput = document.getElementById("svgInput");
+      const thicknessInput = document.getElementById("thicknessInput");
+      const targetSizeInput = document.getElementById("targetSizeInput");
+      const removeStrokeInput = document.getElementById("removeStrokeInput");
+      const colorList = document.getElementById("colorList");
+      const generateBtn = document.getElementById("generateBtn");
+      const statusEl = document.getElementById("status");
+      const output = document.getElementById("output");
+      const outputFilename = document.getElementById("outputFilename");
+      const outputVertices = document.getElementById("outputVertices");
+      const outputFaces = document.getElementById("outputFaces");
+      const downloadLink = document.getElementById("downloadLink");
+
+      let originalSvgText = "";
+      let processedSvgText = "";
+      let selectedFillColors = new Set();
+      let currentObjectUrl = null;
+
+      const parser = new DOMParser();
+      const serializer = new XMLSerializer();
+
+      const resetUI = () => {
+        colorList.innerHTML = "";
+        selectedFillColors.clear();
+        generateBtn.disabled = true;
+        output.hidden = true;
+        statusEl.textContent = "";
+        processedSvgText = "";
+        if (currentObjectUrl) {
+          URL.revokeObjectURL(currentObjectUrl);
+          currentObjectUrl = null;
+        }
+      };
+
+      svgInput.addEventListener("change", async (event) => {
+        resetUI();
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith(".svg")) {
+          statusEl.textContent = "SVGファイルを選択してください";
+          return;
+        }
+        const text = await file.text();
+        originalSvgText = text;
+        processedSvgText = text;
+        populateColorOptions(text);
+        generateBtn.disabled = false;
+        statusEl.textContent = "SVGを読み込みました";
+      });
+
+      const populateColorOptions = (svgText) => {
+        const doc = parser.parseFromString(svgText, "image/svg+xml");
+        const elements = doc.querySelectorAll("path, rect, circle, ellipse, polygon, polyline, line, g, text");
+        const fills = new Set();
+        elements.forEach((el) => {
+          const fillAttr = el.getAttribute("fill");
+          const styleAttr = el.getAttribute("style");
+          let fill = normalizeColor(fillAttr);
+          if (!fill && styleAttr) {
+            const match = styleAttr.match(/fill\s*:\s*([^;]+)/i);
+            if (match) {
+              fill = normalizeColor(match[1]);
+            }
+          }
+          if (fill && fill !== "none") {
+            fills.add(fill);
+          }
+        });
+
+        colorList.innerHTML = "";
+        if (!fills.size) {
+          const note = document.createElement("div");
+          note.className = "notice";
+          note.textContent = "塗りつぶし色は検出されませんでした";
+          colorList.appendChild(note);
+          return;
+        }
+
+        fills.forEach((fill) => {
+          const id = `fill-${fill.replace(/[^a-zA-Z0-9]/g, "-")}`;
+          const wrapper = document.createElement("label");
+          wrapper.className = "checkbox-item";
+          wrapper.htmlFor = id;
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = id;
+          checkbox.value = fill;
+          checkbox.addEventListener("change", (e) => {
+            if (e.target.checked) {
+              selectedFillColors.add(fill);
+            } else {
+              selectedFillColors.delete(fill);
+            }
+          });
+
+          const colorPreview = document.createElement("span");
+          colorPreview.className = "color-preview";
+          colorPreview.style.background = fill;
+
+          const labelText = document.createElement("span");
+          labelText.textContent = fill;
+
+          wrapper.appendChild(checkbox);
+          wrapper.appendChild(colorPreview);
+          wrapper.appendChild(labelText);
+          colorList.appendChild(wrapper);
+        });
+      };
+
+      const normalizeColor = (value) => {
+        if (!value) return null;
+        const normalized = value.trim().toLowerCase();
+        if (!normalized || normalized.startsWith("url(")) {
+          return null;
+        }
+        return normalized;
+      };
+
+      const applySvgTransformations = () => {
+        if (!originalSvgText) return "";
+        const doc = parser.parseFromString(originalSvgText, "image/svg+xml");
+        const svgElement = doc.documentElement;
+
+        if (removeStrokeInput.checked) {
+          const stroked = svgElement.querySelectorAll("*");
+          stroked.forEach((el) => {
+            if (el.hasAttribute("stroke")) {
+              el.setAttribute("stroke", "none");
+            }
+            const styleAttr = el.getAttribute("style");
+            if (styleAttr && /stroke\s*:/i.test(styleAttr)) {
+              const newStyle = styleAttr
+                .split(";")
+                .map((rule) => rule.trim())
+                .filter((rule) => !/^stroke\s*:/i.test(rule))
+                .join(";");
+              if (newStyle) {
+                el.setAttribute("style", newStyle);
+              } else {
+                el.removeAttribute("style");
+              }
+            }
+          });
+        }
+
+        if (selectedFillColors.size) {
+          const removable = svgElement.querySelectorAll("path, rect, circle, ellipse, polygon, polyline, line, text");
+          removable.forEach((el) => {
+            let fill = el.getAttribute("fill");
+            if (!fill) {
+              const styleAttr = el.getAttribute("style");
+              if (styleAttr) {
+                const match = styleAttr.match(/fill\s*:\s*([^;]+)/i);
+                if (match) {
+                  fill = match[1];
+                }
+              }
+            }
+            fill = normalizeColor(fill);
+            if (fill && selectedFillColors.has(fill)) {
+              el.remove();
+            }
+          });
+        }
+
+        processedSvgText = serializer.serializeToString(doc);
+        return processedSvgText;
+      };
+
+      const loadSvgToShapes = (svgText) => {
+        const loader = new SVGLoader();
+        const parsed = loader.parse(svgText);
+        const shapes = [];
+        parsed.paths.forEach((path) => {
+          const fillColor = path.userData?.style?.fill;
+          if (fillColor !== undefined && fillColor !== "none") {
+            shapes.push(...path.toShapes(true));
+          }
+        });
+        return shapes;
+      };
+
+      const computeBounds = (shapes) => {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        const includePoints = (points) => {
+          points.forEach((point) => {
+            minX = Math.min(minX, point.x);
+            minY = Math.min(minY, point.y);
+            maxX = Math.max(maxX, point.x);
+            maxY = Math.max(maxY, point.y);
+          });
+        };
+
+        shapes.forEach((shape) => {
+          const { shape: outer, holes } = shape.extractPoints();
+          if (outer?.length) {
+            includePoints(outer);
+          }
+          (holes || []).forEach((hole) => {
+            if (hole?.length) {
+              includePoints(hole);
+            }
+          });
+        });
+
+        if (!Number.isFinite(minX)) {
+          return null;
+        }
+        return {
+          width: maxX - minX,
+          height: maxY - minY,
+        };
+      };
+
+      const extrudeShapesToGeometry = (shapes, depth) => {
+        const geometries = shapes.map((shape) =>
+          new THREE.ExtrudeGeometry(shape, {
+            depth,
+            bevelEnabled: false,
+          })
+        );
+        const merged = THREE.BufferGeometryUtils?.mergeBufferGeometries
+          ? THREE.BufferGeometryUtils.mergeBufferGeometries(geometries, false)
+          : mergeBufferGeometriesFallback(geometries);
+        geometries.forEach((geometry) => geometry.dispose?.());
+        merged?.computeVertexNormals?.();
+        return merged;
+      };
+
+      const mergeBufferGeometriesFallback = (geometries) => {
+        const merged = new THREE.BufferGeometry();
+        const positions = [];
+        geometries.forEach((geometry) => {
+          const source = geometry.getIndex() ? geometry.toNonIndexed() : geometry;
+          const position = source.getAttribute("position");
+          for (let i = 0; i < position.count; i++) {
+            positions.push(position.getX(i), position.getY(i), position.getZ(i));
+          }
+          if (source !== geometry) {
+            source.dispose();
+          }
+        });
+        merged.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(positions, 3)
+        );
+        return merged;
+      };
+
+      const ensureBufferGeometryUtils = async () => {
+        if (THREE.BufferGeometryUtils) return;
+        const module = await import(
+          "https://unpkg.com/three@0.158.0/examples/jsm/utils/BufferGeometryUtils.js"
+        );
+        Object.assign(THREE, { BufferGeometryUtils: module.BufferGeometryUtils });
+      };
+
+      generateBtn.addEventListener("click", async () => {
+        statusEl.textContent = "STLを生成しています...";
+        try {
+          await ensureBufferGeometryUtils();
+        } catch (error) {
+          console.error(error);
+          statusEl.textContent = "補助モジュールの読み込みに失敗しました";
+          return;
+        }
+        const svgText = applySvgTransformations();
+        if (!svgText) {
+          statusEl.textContent = "SVGが読み込まれていません";
+          return;
+        }
+
+        const thicknessValue = parseFloat(thicknessInput.value);
+        const thickness = thicknessValue > 0 ? thicknessValue : 3;
+
+        let shapes;
+        try {
+          shapes = loadSvgToShapes(svgText);
+        } catch (error) {
+          console.error(error);
+          statusEl.textContent = "SVGの解析に失敗しました";
+          return;
+        }
+        if (!shapes.length) {
+          statusEl.textContent = "塗りが存在する図形がありません";
+          return;
+        }
+
+        let scale = 1;
+        const bounds = computeBounds(shapes);
+        if (bounds && targetSizeInput.value) {
+          const target = parseFloat(targetSizeInput.value);
+          if (target > 0 && bounds.width > 0) {
+            scale = target / bounds.width;
+          }
+        }
+
+        shapes.forEach((shape) => {
+          shape.scale(scale, scale);
+        });
+
+        const geometry = extrudeShapesToGeometry(shapes, thickness);
+        if (!geometry) {
+          statusEl.textContent = "ジオメトリを生成できませんでした";
+          return;
+        }
+
+        const exporter = new STLExporter();
+        const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+        const stlString = exporter.parse(mesh, { binary: false });
+
+        const blob = new Blob([stlString], { type: "model/stl" });
+        const filename = (svgInput.files?.[0]?.name || "kirimoji").replace(/\.svg$/i, "") + ".stl";
+        if (currentObjectUrl) {
+          URL.revokeObjectURL(currentObjectUrl);
+        }
+        currentObjectUrl = URL.createObjectURL(blob);
+        downloadLink.href = currentObjectUrl;
+        downloadLink.download = filename;
+        outputFilename.textContent = filename;
+        outputVertices.textContent = geometry.getAttribute("position").count;
+        outputFaces.textContent = geometry.getIndex()
+          ? geometry.getIndex().count / 3
+          : geometry.getAttribute("position").count / 3;
+        output.hidden = false;
+        statusEl.textContent = "STLを生成しました";
+      });
+    </script>
+  </body>
+</html>
