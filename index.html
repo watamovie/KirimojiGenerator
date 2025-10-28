@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirimoji STL Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Kirimoji STL Generator</h1>
+    <p>SVGをアップロードして、厚み付きSTLを生成します。</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="control-group">
+        <label for="svg-file">SVGファイル</label>
+        <input type="file" id="svg-file" accept="image/svg+xml" />
+      </div>
+
+      <div class="control-group">
+        <label for="thickness">厚み (mm)</label>
+        <input type="number" id="thickness" min="0.1" step="0.1" value="3" />
+      </div>
+
+      <div class="control-group">
+        <label for="target-size">最大サイズ (mm)</label>
+        <input type="number" id="target-size" min="1" step="1" value="100" />
+        <p class="hint">モデルの幅・高さのうち大きい方がこのサイズになるようスケールされます。</p>
+      </div>
+
+      <div class="control-group checkbox">
+        <input type="checkbox" id="remove-strokes" />
+        <label for="remove-strokes">ストロークをすべて削除</label>
+      </div>
+
+      <div class="control-group">
+        <h2>塗りの色で図形を削除</h2>
+        <div id="color-options" class="color-options">
+          <p class="hint">SVGを読み込むと色が表示されます。</p>
+        </div>
+      </div>
+
+      <div class="control-group buttons">
+        <button id="process-button" disabled>プレビューを更新</button>
+        <button id="download-button" disabled>STLをダウンロード</button>
+      </div>
+    </section>
+
+    <section class="preview">
+      <h2>プレビュー</h2>
+      <div id="renderer" class="renderer"></div>
+      <div id="preview-info" class="preview-info"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>SVGの処理とSTL生成はブラウザ内で行われます。</p>
+  </footer>
+
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
