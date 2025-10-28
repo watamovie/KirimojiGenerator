@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kirimoji Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Kirimoji STL Generator</h1>
+      <p>SVGファイルを加工して立体切り文字のSTLファイルを生成します。</p>
+    </header>
+    <main>
+      <section class="panel">
+        <h2>1. SVGをアップロード</h2>
+        <label class="file-input">
+          <span>SVGファイルを選択</span>
+          <input type="file" id="svgFile" accept="image/svg+xml" />
+        </label>
+        <div class="options">
+          <label>
+            厚み (mm)
+            <input type="number" id="thickness" value="3" min="0.1" step="0.1" />
+          </label>
+          <label>
+            最大サイズ (mm)
+            <input type="number" id="maxSize" placeholder="未指定" min="1" step="1" />
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="removeStrokes" />
+            ストロークを削除
+          </label>
+        </div>
+        <div id="colorOptions" class="color-options hidden">
+          <h3>削除する塗りの色を選択</h3>
+          <p class="help">SVGから抽出した色ごとに、削除したい塗りを選択してください。</p>
+          <div id="colorList" class="color-list"></div>
+        </div>
+        <div class="actions">
+          <button id="updatePreview" disabled>プレビュー更新</button>
+          <button id="downloadStl" disabled>STLをダウンロード</button>
+        </div>
+        <div id="status" role="status"></div>
+      </section>
+      <section class="panel preview">
+        <h2>2. 3Dプレビュー</h2>
+        <div id="viewer"></div>
+      </section>
+    </main>
+    <footer>
+      <p>処理はすべてブラウザ内で実行されます。Cloudflare Pagesにそのままデプロイできます。</p>
+    </footer>
+    <script type="module" src="scripts/app.js"></script>
+  </body>
+</html>
