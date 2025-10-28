@@ -1,0 +1,176 @@
+:root {
+  color-scheme: light dark;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background-color: #f5f5f5;
+  color: #1c1c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    background-color: #111;
+    color: #f5f5f5;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header,
+main,
+footer {
+  width: min(960px, 90vw);
+  margin: 0 auto;
+}
+
+header {
+  padding: 2rem 0 1rem;
+  text-align: center;
+}
+
+main {
+  flex: 1;
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: rgba(24, 24, 24, 0.9);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+h1,
+h2 {
+  margin: 0 0 1rem;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-input {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+input,
+button,
+select {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  input,
+  button,
+  select {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(36, 36, 36, 0.9);
+    color: inherit;
+  }
+}
+
+input[type="file"] {
+  padding: 0.4rem 0.75rem;
+}
+
+button.primary {
+  background: linear-gradient(135deg, #ff8f70, #ff3d54);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(255, 61, 84, 0.4);
+}
+
+#status {
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  #status {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+#status.error {
+  background: rgba(220, 38, 38, 0.12);
+  border-left: 4px solid #dc2626;
+  color: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  #status.error {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: #f87171;
+    color: #fecaca;
+  }
+}
+
+#download-link {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #0f766e;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+#download-link.hidden {
+  display: none;
+}
+
+footer {
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
